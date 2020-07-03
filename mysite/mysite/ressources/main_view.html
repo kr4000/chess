@@ -1,0 +1,186 @@
+<html>
+    {% load static %}
+    <head>
+
+        <link rel="stylesheet" href="{% static 'mysite/style.css' %}">
+
+    </head>
+
+    <body onload="board_onload()">
+        <div id="main">
+            <h1>Chess</h1>
+            
+            <div class="flex_centered">
+                <h2>Kevin J Reif</h2>
+            </div>
+            <div class="flex_centered">
+                <h3>{{players_turn}} {{message}}</h3>
+            </div>
+
+
+            <table id="board" >
+                <tr>
+                    <th></th>
+                    <th>0</th>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
+                    <th>5</th>
+                    <th>6</th>
+                    <th>7</th>
+                    <th></th>
+                </tr>
+                {%  for row in rows %}
+                    <tr>
+                        <th>{{forloop.counter0}}</th>
+                        {% for f in row %}
+                            <td data-color='{{f.0}}' data-type='{{f.1}}' onclick="click_handler(this)" data-row="{{forloop.parentloop.counter0}}" data-col="{{forloop.counter0}}"></td>
+                        {% endfor %}
+                        <th>{{forloop.counter0}}</th>
+                    </tr>
+      
+                {% endfor %}
+                <tr>
+                    <th></th>
+                    <th>0</th>
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
+                    <th>5</th>
+                    <th>6</th>
+                    <th>7</th>
+                    <th></th>
+                </tr>
+            </table>
+
+            <div class="flex_centered">
+                <form  method="post">{% csrf_token %}
+                    <input type="hidden" id="a_row" name="a_row">
+                    <input type="hidden" id="a_col" name="a_col">
+                    <input type="hidden" id="b_row" name="b_row">
+                    <input type="hidden" id="b_col" name="b_col">
+    
+                    <input type="hidden" name="function" value="move">
+    
+                    <button>submit</button>
+                </form>
+                <form  method="post">{% csrf_token %}
+                    <input type="hidden" name="function" value="new_game">
+                    <button>new game</button>
+                </form>
+            </div>
+
+
+
+    
+        </div>
+        <!--<p>game id:{{id}}</p>-->
+
+
+        <script>
+
+            pieces={
+                'white':{
+                    'pawn':"♙",
+                    "rook":"♖",
+                    "knight":"♘",
+                    "bishop":"♗",
+                    "queen":"♕",
+                    "king":"♔",
+                },
+                "black":{
+                    "pawn":"♟",
+                    "rook":"♜",
+                    "knight":"♞",
+                    "bishop":"♝",
+                    "queen":"♛",
+                    "king":"♚",
+                }
+
+            }
+
+
+            function board_onload(){
+                console.log("running board_onload")
+
+
+                table=document.getElementById('board')
+                tbody=table.getElementsByTagName("tbody")[0];
+                console.log(tbody)
+                rows=tbody.children
+                console.log(rows)
+                for(var i=0; i<rows.length; i++){
+                    row=rows[i]
+                    console.log('row',row)
+
+                    for(var i1=0;i1<row.children.length;i1++){
+                        field= row.children[i1]
+                        console.log('field',field)
+
+                        if(field.hasAttribute('data-color') && field.hasAttribute('data-type')){
+                            if(field.getAttribute('data-color').length>0 && field.getAttribute("data-type").length>0){
+                                console.log('setting text')
+                                field.innerText=pieces[field.getAttribute('data-color')][field.getAttribute('data-type')]
+
+
+                            }
+                            
+                            if((i%2)==0){
+                                if((i1%2)==0){
+                                    field.classList.add("black")
+                                }
+                                else{
+                                    field.classList.add("white")
+
+                                }
+                            }
+                            if((i%2)==1){
+                                if((i1%2)==0){
+                                    field.classList.add("white")
+                                }
+                                else{
+                                    field.classList.add("black")
+
+                                }
+                            }
+
+
+
+
+                        }
+                    }
+
+                }
+
+            }
+
+            state="none_selected"
+            function click_handler(ele){
+                console.log(ele)
+                if(state==="none_selected"){
+ 
+                    document.getElementById("a_row").value=ele.getAttribute("data-row");
+                    document.getElementById("a_col").value=ele.getAttribute("data-col");
+                    ele.classList.add("selected")
+
+
+                    state="a_selected"
+                    return;
+                }
+                if(state==="a_selected"){
+                    document.getElementById("b_row").value=ele.getAttribute("data-row");
+                    document.getElementById("b_col").value=ele.getAttribute("data-col");
+                    ele.classList.add("selected")
+
+
+                    state="both_selected"
+                    return;
+                }
+            }
+
+
+        </script>
+    </body>
+</html>
